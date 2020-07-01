@@ -32,12 +32,13 @@ e<-rnorm(n,mean=0,sd=0.4)
 g<-exp(z/2)*cos(5*z^2)+10
 y<-g+e
 plot(y)
-bw<-seq(0.001, 0.1, length.out = 2*n)    #You can change the interval as you wish. It is up to researcher
-for (i in 1:n){
+dn<-2*n
+bw<-seq(0.001, 0.2, length.out = dn)    #You can change the interval as you wish. It is up to researcher
+for (i in 1:dn){
 W<-kernelwts(z, 0,bw[i], kernel = "gaussian")
 gcvscore[i]<-gcvfunc(y,W)
 }
-for (j in 1:n){
+for (j in 1:dn){
   if (gcvscore[j]==min(gcvscore)){
     bws<-bw[j]
   }
@@ -45,10 +46,14 @@ for (j in 1:n){
 fitks<-ksmooth(z,y,'normal',bandwidth=bws)
 fitted_values<-fitks$y
 
-plot(z,y,ylim=c(min(y),max(y)),pch=19)
+plot(z,y,ylim=c(min(y),max(y)),pch=19,ylab="y & kernel smoothing fit")
 par(new=TRUE)
-plot(z,fitted_values,ylim=c(min(y),max(y)),type="l",col="red",lwd=3)
+plot(z,fitted_values,ylim=c(min(y),max(y)),type="l",col="red",lwd=3,ylab="y & kernel smoothing fit")
 par(new=TRUE)
-plot(z,g,ylim=c(min(y),max(y)),type="l",col="black",lwd=3)
+plot(z,g,ylim=c(min(y),max(y)),type="l",col="black",lwd=3,ylab="y & kernel smoothing fit")
 grid()
+legend(0.5, 11.5, legend=c("data point", "real function","Kernel Sm. fit"),
+       col=c("black", "red","black"), pch=c(19,NA,NA),lty=c(NA,1,1), cex=0.8)
 
+#Taken from the paper: Aydın, D. and Yılmaz, E. (2018). Modified estimators in semiparametric regression models with right-censored data
+#Journal of Computation and Simulation, 88(8): 1470-1498
