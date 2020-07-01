@@ -1,0 +1,54 @@
+library(rdd)
+library(psych)
+#-----------trace of a matrix-------
+trace <- function(A) {
+  n <- dim(A)[1] # get dimension of matrix
+  tr <- 0 # initialize trace value
+  
+  # Loop over the diagonal elements of the supplied matrix and add the element to tr
+  for (k in 1:n) {
+    l <- A[k,k]
+    tr <- tr + l
+  }
+  return(tr[[1]])
+}
+#---------------GCV-----------------
+gcvfunc<-function(y,H){
+  n<-length(y)
+  score<-(1/n)*(norm((diag(n)-H)*y)^2)/(((1/n)*trace(diag(n)-H))^2)
+  return(score)
+}
+n<-100
+z <- 0
+y <- 0
+
+
+for (i in 1:n)
+{
+  z[i]<-(i-0.5)/n
+}
+gcvscore<-0
+e<-rnorm(n,mean=0,sd=0.4)
+g<-exp(z/2)*cos(5*z^2)+10
+y<-g+e
+plot(y)
+bw<-seq(0.001, 0.1, length.out = 2*n)    #You can change the interval as you wish. It is up to researcher
+for (i in 1:n){
+W<-kernelwts(z, 0,bw[i], kernel = "gaussian")
+gcvscore[i]<-gcvfunc(y,W)
+}
+for (j in 1:n){
+  if (gcvscore[j]==min(gcvscore)){
+    bws<-bw[j]
+  }
+}
+fitks<-ksmooth(z,y,'normal',bandwidth=bws)
+fitted_values<-fitks$y
+
+plot(z,y,ylim=c(min(y),max(y)),pch=19)
+par(new=TRUE)
+plot(z,fitted_values,ylim=c(min(y),max(y)),type="l",col="red",lwd=3)
+par(new=TRUE)
+plot(z,g,ylim=c(min(y),max(y)),type="l",col="black",lwd=3)
+grid()
+
